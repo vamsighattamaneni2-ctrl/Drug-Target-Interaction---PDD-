@@ -1,0 +1,14 @@
+{
+  "name": "drugnet-selenium-e2e-tests",
+  "version": "1.0.0",
+  "description": "Selenium WebDriver End-to-End Test Suite for DrugNet Web Frontend",
+  "main": "tests/login-tests.js",
+  "scripts": {
+    "test": "node tests/login-tests.js",
+    "report": "python generate_selenium_report.py"
+  },
+  "dependencies": {
+    "selenium-webdriver": "^4.27.0",
+    "chromedriver": "^131.0.0"
+  }
+}

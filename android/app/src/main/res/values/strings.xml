@@ -1,0 +1,6 @@
+<resources>
+    <string name="app_name">Drug–Target Discovery</string>
+    <string name="title_dashboard">DTI Discovery Hub</string>
+    <string name="title_targets">Therapeutic Targets</string>
+    <string name="title_pocket">Pocket Analysis</string>
+</resources>

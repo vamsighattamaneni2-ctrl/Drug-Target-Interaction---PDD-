@@ -1,0 +1,17 @@
+# Drug–Target Interaction Analysis Tool - Python Backend Dependencies
+fastapi==0.115.6
+uvicorn[standard]==0.34.0
+pydantic==2.10.4
+pydantic-settings==2.7.0
+httpx==0.28.1
+python-dotenv==1.0.1
+
+# Scientific and Data Libraries (Foundation)
+numpy>=1.26.0
+scipy>=1.13.0
+pandas>=2.2.0
+
+# Bioinformatics & Chemoinformatics tools (Optional / Ecosystem connectors)
+# Note: RDKit is recommended to be installed via conda or binary wheels where supported
+# rdkit>=2023.9.5
+# biopython>=1.83

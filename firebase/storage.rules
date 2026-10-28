@@ -1,0 +1,25 @@
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+
+    // Helper functions
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    // Public structure library (PDB protein files and baseline conformations)
+    match /public_structures/{allPaths=**} {
+      allow read: if true;
+      allow write: if false;
+    }
+
+    // User-uploaded ligand molecules and docking output archives
+    match /users/{userId}/{allPaths=**} {
+      allow read, write: if isOwner(userId);
+    }
+  }
+}

@@ -1,0 +1,106 @@
+# ==========================================
+# Security & Secret Credentials (NEVER COMMIT)
+# ==========================================
+*.pem
+*.key
+*.p12
+*.jks
+*.keystore
+*serviceAccountKey*.json
+google-services.json
+!google-services.json.example
+
+# Environment variable files
+.env
+.env.*
+!.env.example
+
+# ==========================================
+# Node.js & Web (web/)
+# ==========================================
+node_modules/
+dist/
+dist-ssr/
+*.local
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+.eslintcache
+.vite/
+
+# ==========================================
+# Python & Backend (backend/)
+# ==========================================
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+.pytest_cache/
+.coverage
+htmlcov/
+.mypy_cache/
+.ruff_cache/
+.venv/
+venv/
+ENV/
+env/
+
+# ==========================================
+# Android Native (android/)
+# ==========================================
+.gradle/
+android/.gradle/
+android/build/
+android/app/build/
+build/
+captures/
+*.apk
+*.ap_
+*.aab
+*.dex
+*.class
+local.properties
+.externalNativeBuild/
+.cxx/
+
+# ==========================================
+# Firebase
+# ==========================================
+.firebase/
+firebase-debug.log*
+firestore-debug.log*
+ui-debug.log*
+
+# ==========================================
+# IDE & Operating System Files
+# ==========================================
+.idea/
+*.iml
+.vscode/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+.DS_Store
+Thumbs.db
+desktop.ini

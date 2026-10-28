@@ -1,0 +1,29 @@
+{
+  "_comment": "Template file for Firebase Android setup. Download your actual google-services.json from Firebase Console > Project Settings > Your Android App and place it at android/app/google-services.json",
+  "project_info": {
+    "project_number": "000000000000",
+    "project_id": "your-firebase-project-id",
+    "storage_bucket": "your-firebase-project-id.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:000000000000:android:0000000000000000000000",
+        "android_client_info": {
+          "package_name": "com.drugtarget.discovery"
+        }
+      },
+      "api_key": [
+        {
+          "current_key": "YOUR_ACTUAL_FIREBASE_API_KEY_GOES_HERE"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
