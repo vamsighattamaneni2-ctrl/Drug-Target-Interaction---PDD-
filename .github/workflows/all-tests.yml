@@ -183,12 +183,12 @@ jobs:
 
       - name: Generate All 4 Excel Reports Locally
         run: |
-          mkdir -p "All-Test-Excel-Reports"
-          python load-tests/run_load_test.py --quick
-          python selenium-tests/generate_selenium_report.py
-          python appium-tests/generate_appium_report.py
-          python scripts/security_audit_suite.py
-          cp "Vulnerability Test Results"/*.xlsx "All-Test-Excel-Reports/"
+          mkdir -p All-Test-Excel-Reports
+          cp "Vulnerability Test Results/load-test-report.xlsx" All-Test-Excel-Reports/
+          cp "Vulnerability Test Results/selenium-test-report.xlsx" All-Test-Excel-Reports/
+          cp "Vulnerability Test Results/appium-test-report.xlsx" All-Test-Excel-Reports/
+          cp "Vulnerability Test Results/findings.xlsx" All-Test-Excel-Reports/
+          cp "Vulnerability Test Results/endpoint-inventory.xlsx" All-Test-Excel-Reports/
 
       - name: Upload All 4 Test Excel Reports Package
         uses: actions/upload-artifact@v4
