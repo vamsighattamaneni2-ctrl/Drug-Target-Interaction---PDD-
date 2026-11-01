@@ -9,6 +9,13 @@ Never fabricates missing values or citations.
 
 import io
 import time
+import xml.sax.saxutils
+
+def _safe_xml(val) -> str:
+    if val is None:
+        return ''
+    return xml.sax.saxutils.escape(str(val))
+
 from typing import Any, Dict, List, Optional
 
 # ReportLab imports
@@ -17,11 +24,15 @@ from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, Tabl
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.lib import colors
 
-# python-docx imports
-import docx
-from docx.shared import Inches, Pt, RGBColor
-from docx.enum.text import WD_ALIGN_PARAGRAPH
-from docx.enum.table import WD_TABLE_ALIGNMENT
+# python-docx imports (optional fallback)
+try:
+    import docx
+    from docx.shared import Inches, Pt, RGBColor
+    from docx.enum.text import WD_ALIGN_PARAGRAPH
+    from docx.enum.table import WD_TABLE_ALIGNMENT
+    HAS_DOCX = True
+except ImportError:
+    HAS_DOCX = False
 
 
 def generate_pdf_report(data: Dict[str, Any]) -> bytes:
@@ -93,12 +104,12 @@ def generate_pdf_report(data: Dict[str, Any]) -> bytes:
     story.append(Paragraph(f"Generated on {time.strftime('%Y-%m-%d %H:%M:%S UTC')} • Drug Net Platform v2.4", subtitle_style))
     story.append(HRFlowable(width="100%", thickness=1.5, color=colors.HexColor("#1E3A8A"), spaceAfter=12))
 
-    # Target & Ligand Summary Table
-    compound_name = data.get("compound_name", "Investigational Ligand")
-    target_gene = data.get("target_gene", "Target Kinase")
-    smiles = data.get("smiles", "N/A")
-    pdb_id = data.get("pdb_id", "Custom PDB")
-    docking_score = data.get("docking_score", "N/A")
+    # Target & Ligand Summary Table (Safely sanitized for XML flowables)
+    compound_name = _safe_xml(data.get("compound_name", "Investigational Ligand"))
+    target_gene = _safe_xml(data.get("target_gene", "Target Kinase"))
+    smiles = _safe_xml(data.get("smiles", "N/A"))
+    pdb_id = _safe_xml(data.get("pdb_id", "Custom PDB"))
+    docking_score = _safe_xml(data.get("docking_score", "N/A"))
 
     overview_data = [
         ["Target Biological Receptor", f"{target_gene} (PDB: {pdb_id})"],
@@ -130,7 +141,7 @@ def generate_pdf_report(data: Dict[str, Any]) -> bytes:
         ["Search Dimensions (X, Y, Z)", f"{pocket.get('box_size_x', 20.0)} × {pocket.get('box_size_y', 20.0)} × {pocket.get('box_size_z', 20.0)} Å"],
         ["Druggability Score", f"{pocket.get('druggability_score', 0.85)} (Calculated Cavity)"],
         ["Cavity Volume", f"{pocket.get('volume_angstrom3', 1100.0)} Å³"],
-        ["Key Lining Residues", Paragraph(", ".join(pocket.get("lining_residues", ["ILE-313", "THR-315", "MET-318", "ASP-381", "PHE-382"])), body_style)],
+        ["Key Lining Residues", Paragraph(_safe_xml(", ".join(str(r) for r in pocket.get("lining_residues", ["ILE-313", "THR-315", "MET-318", "ASP-381", "PHE-382"]))), body_style)],
     ]
     t_pocket = Table(pocket_data, colWidths=[180, 350])
     t_pocket.setStyle(TableStyle([
@@ -232,6 +243,8 @@ def generate_docx_report(data: Dict[str, Any]) -> bytes:
     """
     Generates a Microsoft Word (.docx) scientific report.
     """
+    if not HAS_DOCX:
+        raise RuntimeError("python-docx is not installed on server.")
     doc = docx.Document()
 
     # Title

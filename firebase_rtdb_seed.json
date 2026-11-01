@@ -1,0 +1,217 @@
+{
+  "system_info": {
+    "platform": "Drug–Target Interaction Analysis Platform",
+    "version": "2.4.0",
+    "status": "Online & Synchronized",
+    "last_sync": "2026-10-31T08:30:00Z"
+  },
+  "users": {
+    "usr-vamsi-01": {
+      "uid": "usr-vamsi-01",
+      "displayName": "Dr. Vamsi Ghattamaneni",
+      "name": "Dr. Vamsi Ghattamaneni",
+      "email": "vamsi@theratarget.org",
+      "role": "Lead Computational Oncologist",
+      "institution": "Therapeutic Discovery Institute",
+      "avatarText": "VG",
+      "createdAt": "2026-10-20T10:00:00Z",
+      "lastLoginAt": "2026-10-31T08:00:00Z"
+    },
+    "usr-investigator-02": {
+      "uid": "usr-investigator-02",
+      "displayName": "Dr. Elena Rostova",
+      "name": "Dr. Elena Rostova",
+      "email": "elena.rostova@oncology-research.org",
+      "role": "Senior Structural Biologist",
+      "institution": "Center for Molecular Therapeutics",
+      "avatarText": "ER",
+      "createdAt": "2026-10-22T14:30:00Z",
+      "lastLoginAt": "2026-10-30T17:15:00Z"
+    }
+  },
+  "user_reports": {
+    "DTI-2026-8941": {
+      "id": "DTI-2026-8941",
+      "title": "Imatinib binding to BCR-ABL1 kinase pocket",
+      "compoundId": "DB00619",
+      "compoundName": "Imatinib",
+      "compoundSmiles": "CC1=C(C=C(C=C1)NC(=O)C2=CC=C(CN3CCN(C)CC3)C=C2)NC4=NC=CC(=N4)C5=CN=CC=C5",
+      "targetId": "BCR-ABL1",
+      "targetGene": "BCR-ABL1",
+      "targetPdbId": "1IEP",
+      "targetName": "Tyrosine-protein kinase ABL1",
+      "method": "AutoDock Vina",
+      "dockingScore": -10.2,
+      "bindingAffinityPkd": 7.48,
+      "predictedKdNm": 33.1,
+      "confidence": "High",
+      "hydrogenBondsCount": 4,
+      "saltBridgesCount": 1,
+      "dockingRmsd": 0.85,
+      "summary": "Strong favorable binding energy (-10.2 kcal/mol) with canonical hydrogen bond interactions at Thr315, Glu286, and Asp381 in the inactive DFG-out conformation.",
+      "status": "completed",
+      "dateSubmitted": "2026-10-27 14:32",
+      "completedAt": "2026-10-27 14:38",
+      "submittedBy": "Dr. Vamsi Ghattamaneni"
+    },
+    "DTI-2026-8912": {
+      "id": "DTI-2026-8912",
+      "title": "Erlotinib docking into EGFR Kinase Domain",
+      "compoundId": "DB00530",
+      "compoundName": "Erlotinib",
+      "compoundSmiles": "COCCOC1=C(C=C2C(=C1)C(=NC=N2)NC3=CC=CC(=C3)C#C)OCCOC",
+      "targetId": "EGFR",
+      "targetGene": "EGFR",
+      "targetPdbId": "1M17",
+      "targetName": "Epidermal Growth Factor Receptor",
+      "method": "AutoDock Vina",
+      "dockingScore": -9.8,
+      "bindingAffinityPkd": 7.19,
+      "predictedKdNm": 64.6,
+      "confidence": "High",
+      "hydrogenBondsCount": 2,
+      "saltBridgesCount": 0,
+      "dockingRmsd": 1.12,
+      "summary": "Occupies the ATP-binding cleft of EGFR with primary hydrogen bonding to Met793 in the hinge region and favorable hydrophobic interactions in the deep lipophilic pocket.",
+      "status": "completed",
+      "dateSubmitted": "2026-10-26 11:15",
+      "completedAt": "2026-10-26 11:21",
+      "submittedBy": "Dr. Vamsi Ghattamaneni"
+    },
+    "DTI-2026-8805": {
+      "id": "DTI-2026-8805",
+      "title": "Gefitinib cross-docking against mutant EGFR (2ITX)",
+      "compoundId": "DB00317",
+      "compoundName": "Gefitinib",
+      "compoundSmiles": "COC1=C(OCC2=CC=CC=C2)C=C2C(=C1)N=CN=C2NC1=CC(Cl)=C(F)C=C1",
+      "targetId": "EGFR",
+      "targetGene": "EGFR",
+      "targetPdbId": "2ITX",
+      "targetName": "Epidermal Growth Factor Receptor (L858R)",
+      "method": "AutoDock Vina",
+      "dockingScore": -9.5,
+      "bindingAffinityPkd": 6.97,
+      "predictedKdNm": 107.0,
+      "confidence": "High",
+      "hydrogenBondsCount": 3,
+      "saltBridgesCount": 0,
+      "dockingRmsd": 0.94,
+      "summary": "Potent sub-nanomolar selectivity for sensitizing kinase domain mutations with key hydrogen bonds at Met793 and Gln791.",
+      "status": "completed",
+      "dateSubmitted": "2026-10-25 16:45",
+      "completedAt": "2026-10-25 16:51",
+      "submittedBy": "Dr. Vamsi Ghattamaneni"
+    },
+    "DTI-2026-8742": {
+      "id": "DTI-2026-8742",
+      "title": "Osimertinib targeting mutant EGFR (1IVO)",
+      "compoundId": "DB09330",
+      "compoundName": "Osimertinib",
+      "compoundSmiles": "CC(=O)N(C)C1=CC(=C(C=C1)NC2=NC=CC(=N2)C3=CN(C4=CC=CC=C34)C)NC(=O)C=C",
+      "targetId": "EGFR",
+      "targetGene": "EGFR",
+      "targetPdbId": "1IVO",
+      "targetName": "Epidermal Growth Factor Receptor",
+      "method": "AutoDock Vina",
+      "dockingScore": -10.5,
+      "bindingAffinityPkd": 7.70,
+      "predictedKdNm": 20.0,
+      "confidence": "High",
+      "hydrogenBondsCount": 4,
+      "saltBridgesCount": 1,
+      "dockingRmsd": 0.78,
+      "summary": "Irreversible covalent and non-covalent binding profile in EGFR kinase cleft with high sub-micromolar inhibitory potency.",
+      "status": "completed",
+      "dateSubmitted": "2026-10-24 09:12",
+      "completedAt": "2026-10-24 09:18",
+      "submittedBy": "Dr. Vamsi Ghattamaneni"
+    },
+    "DTI-2026-8740": {
+      "id": "DTI-2026-8740",
+      "title": "Tamoxifen binding to Estrogen Receptor Alpha",
+      "compoundId": "DB00675",
+      "compoundName": "Tamoxifen",
+      "compoundSmiles": "CCC(=C(C1=CC=CC=C1)C2=CC=C(C=C2)OCCN(C)C)C3=CC=CC=C3",
+      "targetId": "ESR1",
+      "targetGene": "ESR1",
+      "targetPdbId": "3ERT",
+      "targetName": "Estrogen Receptor Alpha",
+      "method": "AutoDock Vina",
+      "dockingScore": -10.0,
+      "bindingAffinityPkd": 7.34,
+      "predictedKdNm": 46.1,
+      "confidence": "High",
+      "hydrogenBondsCount": 1,
+      "saltBridgesCount": 1,
+      "dockingRmsd": 0.72,
+      "summary": "Displaces Helix 12 of ESR1, inducing the antagonist conformational state and blocking coactivator recruitment.",
+      "status": "completed",
+      "dateSubmitted": "2026-10-24 08:30",
+      "completedAt": "2026-10-24 08:36",
+      "submittedBy": "Dr. Vamsi Ghattamaneni"
+    }
+  },
+  "compounds": {
+    "DB00619": {
+      "id": "DB00619",
+      "name": "Imatinib",
+      "molecularWeight": 493.6,
+      "logP": 3.5,
+      "indication": "Chronic Myelogenous Leukemia (CML)",
+      "status": "Approved"
+    },
+    "DB00530": {
+      "id": "DB00530",
+      "name": "Erlotinib",
+      "molecularWeight": 393.4,
+      "logP": 2.7,
+      "indication": "Non-Small Cell Lung Cancer (NSCLC)",
+      "status": "Approved"
+    },
+    "DB00317": {
+      "id": "DB00317",
+      "name": "Gefitinib",
+      "molecularWeight": 446.9,
+      "logP": 3.2,
+      "indication": "EGFR-mutated NSCLC",
+      "status": "Approved"
+    },
+    "DB09330": {
+      "id": "DB09330",
+      "name": "Osimertinib",
+      "molecularWeight": 499.6,
+      "logP": 3.9,
+      "indication": "T790M mutant EGFR lung cancer",
+      "status": "Approved"
+    },
+    "DB00675": {
+      "id": "DB00675",
+      "name": "Tamoxifen",
+      "molecularWeight": 371.5,
+      "logP": 6.3,
+      "indication": "Estrogen receptor-positive breast cancer",
+      "status": "Approved"
+    }
+  },
+  "targets": {
+    "BCR-ABL1": {
+      "gene": "BCR-ABL1",
+      "proteinName": "Tyrosine-protein kinase ABL1",
+      "organism": "Homo sapiens",
+      "pdbId": "1IEP"
+    },
+    "EGFR": {
+      "gene": "EGFR",
+      "proteinName": "Epidermal Growth Factor Receptor",
+      "organism": "Homo sapiens",
+      "pdbId": "1M17"
+    },
+    "ESR1": {
+      "gene": "ESR1",
+      "proteinName": "Estrogen Receptor Alpha",
+      "organism": "Homo sapiens",
+      "pdbId": "3ERT"
+    }
+  }
+}
+

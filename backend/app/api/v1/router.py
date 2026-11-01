@@ -1,6 +1,7 @@
 from fastapi import APIRouter
 from app.api.v1.endpoints import (
     health,
+    auth,
     interactions,
     external,
     docking,
@@ -15,6 +16,7 @@ from app.api.v1.endpoints import (
 api_router = APIRouter()
 
 api_router.include_router(health.router)
+api_router.include_router(auth.router, prefix="/auth", tags=["Authentication & Tokens"])
 api_router.include_router(external.router, prefix="/external", tags=["External Data Sources"])
 api_router.include_router(docking.router, prefix="/docking", tags=["Molecular Preparation & Docking"])
 api_router.include_router(pockets.router, prefix="/pockets", tags=["Binding-Pocket Detection"])

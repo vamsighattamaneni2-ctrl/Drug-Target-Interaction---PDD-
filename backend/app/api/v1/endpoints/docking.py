@@ -3,8 +3,12 @@ API Endpoints for Molecular Preparation and AutoDock Vina Docking Simulation
 """
 
 from typing import Any, Dict, List, Optional
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Request
 from pydantic import BaseModel, Field
+
+from app.core.config import settings
+from app.core.limiter import limiter
+from app.core.security import AuthenticatedUser, get_current_user
 from app.services.docking_service import (
     prepare_ligand,
     prepare_protein_receptor,
@@ -41,7 +45,10 @@ class DockingRunRequest(BaseModel):
 
 
 @router.post("/prepare/ligand", response_model=Dict[str, Any], tags=["Molecular Preparation"])
-async def prepare_ligand_endpoint(payload: LigandPrepRequest):
+async def prepare_ligand_endpoint(
+    payload: LigandPrepRequest,
+    current_user: AuthenticatedUser = Depends(get_current_user),
+):
     """
     Standardize ligand, compute physiological protonation state (pH 7.4),
     generate 3D conformer coordinates, and detect rotatable bonds.
@@ -55,7 +62,10 @@ async def prepare_ligand_endpoint(payload: LigandPrepRequest):
 
 
 @router.post("/prepare/receptor", response_model=Dict[str, Any], tags=["Molecular Preparation"])
-async def prepare_receptor_endpoint(payload: ReceptorPrepRequest):
+async def prepare_receptor_endpoint(
+    payload: ReceptorPrepRequest,
+    current_user: AuthenticatedUser = Depends(get_current_user),
+):
     """
     De-solvate receptor, strip crystallographic water and co-solvents,
     add polar hydrogens, and automatically compute binding pocket search grid coordinates.
@@ -70,11 +80,15 @@ async def prepare_receptor_endpoint(payload: ReceptorPrepRequest):
 
 
 @router.post("/run", response_model=Dict[str, Any], tags=["Molecular Docking"])
-async def run_molecular_docking(payload: DockingRunRequest):
+@limiter.limit(settings.RATE_LIMIT_DOCKING)
+async def run_molecular_docking(
+    request: Request,
+    payload: DockingRunRequest,
+    current_user: AuthenticatedUser = Depends(get_current_user),
+):
     """
     Execute empirical AutoDock Vina molecular docking simulation.
-    Returns 9 ranked binding modes, Delta G affinity scores, Kd dissociation constants,
-    detailed atomic contacts (H-bonds, salt bridges, hydrophobic), and 3D complex coordinates.
+    Requires verified authentication and is rate limited.
     """
     return run_docking_simulation(
         compound_name=payload.compound_name,

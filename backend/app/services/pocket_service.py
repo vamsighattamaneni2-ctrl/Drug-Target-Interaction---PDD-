@@ -23,14 +23,14 @@ def _run_fpocket_if_installed(pdb_path: str) -> Optional[List[Dict[str, Any]]]:
     if not fpocket_bin:
         return None
     try:
-        tmp_dir = tempfile.mkdtemp(prefix="fpocket_")
-        cmd = [fpocket_bin, "-f", pdb_path]
-        res = subprocess.run(cmd, cwd=tmp_dir, capture_output=True, text=True, timeout=30)
-        if res.returncode == 0:
-            # Parse fpocket output files
-            # (fpocket produces an *_out directory with pocket info)
-            # If successfully extracted, return parsed pockets
-            pass
+        with tempfile.TemporaryDirectory(prefix="fpocket_") as tmp_dir:
+            cmd = [fpocket_bin, "-f", pdb_path]
+            res = subprocess.run(cmd, cwd=tmp_dir, capture_output=True, text=True, timeout=30)
+            if res.returncode == 0:
+                # Parse fpocket output files
+                # (fpocket produces an *_out directory with pocket info)
+                # If successfully extracted, return parsed pockets
+                pass
     except Exception:
         pass
     return None
@@ -42,12 +42,12 @@ def _run_p2rank_if_installed(pdb_path: str) -> Optional[List[Dict[str, Any]]]:
     if not prank_bin:
         return None
     try:
-        tmp_dir = tempfile.mkdtemp(prefix="p2rank_")
-        cmd = [prank_bin, "predict", "-f", pdb_path, "-o", tmp_dir]
-        res = subprocess.run(cmd, capture_output=True, text=True, timeout=30)
-        if res.returncode == 0:
-            # Parse predictions.csv if created
-            pass
+        with tempfile.TemporaryDirectory(prefix="p2rank_") as tmp_dir:
+            cmd = [prank_bin, "predict", "-f", pdb_path, "-o", tmp_dir]
+            res = subprocess.run(cmd, capture_output=True, text=True, timeout=30)
+            if res.returncode == 0:
+                # Parse predictions.csv if created
+                pass
     except Exception:
         pass
     return None

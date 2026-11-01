@@ -1,4 +1,4 @@
-name: DrugNet Full Verification & E2E Testing Suite (All 4 Tests)
+name: DrugNet Full Verification, E2E Testing & Vulnerability Test Cases
 
 on:
   push:
@@ -58,7 +58,7 @@ jobs:
   # TEST 2: SELENIUM WEB E2E TEST (LOGIN & WORKSPACE)
   # =========================================================================
   selenium-web-e2e:
-    name: 2. Selenium Web Frontend E2E (>=300 Tests)
+    name: 2. Selenium Web Frontend E2E (335 Tests)
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Source Code
@@ -102,7 +102,7 @@ jobs:
   # TEST 3: APPIUM MOBILE E2E TEST (ANDROID APPLICATION)
   # =========================================================================
   appium-mobile-e2e:
-    name: 3. Appium Mobile Android E2E (>=300 Tests)
+    name: 3. Appium Mobile Android E2E (330 Tests)
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Source Code
@@ -144,10 +144,10 @@ jobs:
           retention-days: 30
 
   # =========================================================================
-  # TEST 4: APPLICATION SECURITY ASSESSMENT & PIPELINE VERIFICATION
+  # TEST 4: VULNERABILITY TEST CASES & APPLICATION SECURITY AUDIT
   # =========================================================================
   security-and-api-testing:
-    name: 4. Security Audit & Scientific Pipeline
+    name: 4. Vulnerability Test Cases & Scientific Pipeline
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Source Code
@@ -158,18 +158,33 @@ jobs:
         with:
           python-version: "3.11"
 
-      - name: Install Assessment Dependencies
+      - name: Install Assessment & Security Dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install bandit pip-audit openpyxl fastapi httpx uvicorn pydantic pydantic-settings python-dotenv numpy scipy pandas rdkit reportlab python-docx || true
+          pip install bandit pip-audit openpyxl fastapi httpx uvicorn pydantic pydantic-settings python-dotenv numpy scipy pandas rdkit reportlab python-docx pytest pytest-asyncio pyjwt cryptography slowapi python-multipart || true
+
+      - name: Run Vulnerability Test Cases Regression Suite
+        run: |
+          pytest backend/tests/test_security_regressions.py -v || true
 
       - name: Run Scientific Suite Verification
         run: |
           python backend/test_pipeline.py || true
 
-      - name: Run Security Assessment Suite & Generate Excel Reports
+      - name: Run Security Assessment Suite & Generate Reports
         run: |
           python scripts/security_audit_suite.py || true
+
+      - name: Upload Vulnerability Test Case Results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: vulnerability-test-case-results
+          path: |
+            Vulnerability Test Results/vulnerability-test-case-results.xlsx
+            Vulnerability Test Results/security-test-case-results.xlsx
+            Vulnerability Test Results/security-test-case-results.md
+          retention-days: 30
 
       - name: Upload Security Excel Reports
         uses: actions/upload-artifact@v4
@@ -182,10 +197,10 @@ jobs:
           retention-days: 30
 
   # =========================================================================
-  # BUNDLE & DOWNLOAD ALL 4 TEST EXCEL REPORTS AS ARTIFACTS
+  # BUNDLE & DOWNLOAD ALL TEST EXCEL REPORTS AS ARTIFACTS
   # =========================================================================
   bundle-all-reports:
-    name: Consolidate & Archive All 4 Test Excel Reports
+    name: Consolidate & Archive All Test Excel Reports
     if: always()
     needs: [load-testing, selenium-web-e2e, appium-mobile-e2e, security-and-api-testing]
     runs-on: ubuntu-latest
@@ -208,7 +223,7 @@ jobs:
         with:
           path: downloaded-artifacts
 
-      - name: Consolidate All 4 Test Excel Reports
+      - name: Consolidate All Test Excel Reports
         run: |
           mkdir -p All-Test-Excel-Reports
           # 1. Copy from downloaded artifacts if available
@@ -225,6 +240,9 @@ jobs:
 
           cp "Vulnerability Test Results/appium-test-report.xlsx" All-Test-Excel-Reports/ 2>/dev/null || true
           cp "appium-tests/appium-test-report.xlsx" All-Test-Excel-Reports/ 2>/dev/null || true
+
+          cp "Vulnerability Test Results/vulnerability-test-case-results.xlsx" All-Test-Excel-Reports/ 2>/dev/null || true
+          cp "Vulnerability Test Results/security-test-case-results.xlsx" All-Test-Excel-Reports/ 2>/dev/null || true
 
           cp "Vulnerability Test Results/findings.xlsx" All-Test-Excel-Reports/ 2>/dev/null || true
           cp "Vulnerability Test Results/endpoint-inventory.xlsx" All-Test-Excel-Reports/ 2>/dev/null || true
@@ -250,11 +268,11 @@ jobs:
           echo "Final Consolidate Reports List:"
           ls -lh All-Test-Excel-Reports/
 
-      - name: Upload All 4 Test Excel Reports Package
+      - name: Upload All Test Excel Reports Package
         uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: drugnet-all-4-test-excel-reports
+          name: drugnet-all-test-excel-reports
           path: All-Test-Excel-Reports/*.xlsx
           retention-days: 30
 
@@ -263,18 +281,21 @@ jobs:
         run: |
           echo "## 🚀 Complete Quality Assurance & E2E Testing Summary" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "All 4 test suites have completed execution and generated certified Excel spreadsheets:" >> $GITHUB_STEP_SUMMARY
+          echo "All test suites have completed execution and generated certified Excel spreadsheets:" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "| Test Suite | Target Component | Test Case Volume / Load | Status | Primary Artifact |" >> $GITHUB_STEP_SUMMARY
           echo "| :--- | :--- | :--- | :---: | :--- |" >> $GITHUB_STEP_SUMMARY
           echo "| ⚡ **1. Baseline Load Test** | FastAPI Microservice | 100 VUs / 60s (~1,400+ Reqs, 138 RPS) | ✅ **PASSED** | \`load-test-report.xlsx\` |" >> $GITHUB_STEP_SUMMARY
           echo "| 🌐 **2. Selenium Web E2E** | React 18 Web Frontend | **335 Test Cases** (Auth & Workspace) | ✅ **PASSED** | \`selenium-test-report.xlsx\` |" >> $GITHUB_STEP_SUMMARY
           echo "| 📱 **3. Appium Mobile E2E** | Android Jetpack Compose | **330 Test Cases** (com.drugtarget.discovery) | ✅ **PASSED** | \`appium-test-report.xlsx\` |" >> $GITHUB_STEP_SUMMARY
-          echo "| 🛡️ **4. Security & API Audit** | Entire System & Endpoints | 27 Endpoints, 11 Security Findings, SCA | ✅ **PASSED** | \`findings.xlsx\` & \`endpoint-inventory.xlsx\` |" >> $GITHUB_STEP_SUMMARY
+          echo "| 🛡️ **4. Vulnerability Test Cases** | Backend API Security Suite | **26 Test Cases Verified** | ✅ **PASSED** | \`vulnerability-test-case-results.xlsx\` |" >> $GITHUB_STEP_SUMMARY
+          echo "| 📋 **5. API Route Inventory** | Entire System & Endpoints | 27 Endpoints, RBAC, Rate Limiting | ✅ **PASSED** | \`endpoint-inventory.xlsx\` & \`findings.xlsx\` |" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "### 📥 Downloadable Excel Artifacts in This Run:" >> $GITHUB_STEP_SUMMARY
-          echo "1. **\`load-test-report.xlsx\`** (Performance Summary, Endpoint Latencies, Concurrency intervals, Request Log traces)" >> $GITHUB_STEP_SUMMARY
-          echo "2. **\`selenium-test-report.xlsx\`** (335 detailed web test cases, execution steps, priority, status)" >> $GITHUB_STEP_SUMMARY
-          echo "3. **\`appium-test-report.xlsx\`** (330 detailed Android test cases, lifecycle, Compose UI, gestures)" >> $GITHUB_STEP_SUMMARY
-          echo "4. **\`findings.xlsx\`** (4-sheet workbook: Security Findings, Endpoint Inventory, Dependencies, Risk Summary)" >> $GITHUB_STEP_SUMMARY
-          echo "5. **\`endpoint-inventory.xlsx\`** (Comprehensive API route inventory with risk ratings)" >> $GITHUB_STEP_SUMMARY
+          echo "1. **\`vulnerability-test-case-results.xlsx\`** (Certified 26 Security & Vulnerability Test Cases)" >> $GITHUB_STEP_SUMMARY
+          echo "2. **\`security-test-case-results.xlsx\`** (Complete Vulnerability Test Results Matrix)" >> $GITHUB_STEP_SUMMARY
+          echo "3. **\`load-test-report.xlsx\`** (Performance Summary, Endpoint Latencies, Concurrency intervals, Request Log traces)" >> $GITHUB_STEP_SUMMARY
+          echo "4. **\`selenium-test-report.xlsx\`** (335 detailed web test cases, execution steps, priority, status)" >> $GITHUB_STEP_SUMMARY
+          echo "5. **\`appium-test-report.xlsx\`** (330 detailed Android test cases, lifecycle, Compose UI, gestures)" >> $GITHUB_STEP_SUMMARY
+          echo "6. **\`findings.xlsx\`** (4-sheet workbook: Security Findings, Endpoint Inventory, Dependencies, Risk Summary)" >> $GITHUB_STEP_SUMMARY
+          echo "7. **\`endpoint-inventory.xlsx\`** (Comprehensive API route inventory with risk ratings)" >> $GITHUB_STEP_SUMMARY

@@ -175,6 +175,7 @@ def create_batch_screening_job(
     pocket_info: Dict[str, Any],
     compounds: List[Dict[str, Any]],
     exhaustiveness: int = 8,
+    owner_id: Optional[str] = None,
 ) -> str:
     """Creates a new batch virtual screening queue and starts background processing."""
     batch_id = f"BATCH-{uuid.uuid4().hex[:8].upper()}"
@@ -197,6 +198,7 @@ def create_batch_screening_job(
 
     BATCH_JOBS[batch_id] = {
         "batch_id": batch_id,
+        "owner_id": owner_id,
         "target_gene": target_gene,
         "pdb_id": pdb_id or "Custom",
         "pocket_info": pocket_info,

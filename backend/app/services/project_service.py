@@ -1,20 +1,12 @@
 """
 Research Project History & Session Reproducibility Service (Feature 7)
-Preserves:
-- Selected target and ligand identifiers
-- Input files / file references
-- Molecular preparation settings & pH
-- AutoDock Vina grid box parameters
-- Results, interaction contacts, and ADMET profiles
-- SHA-256 reproducibility verification hash & timestamps.
-Strictly under Research Projects without user profile or account clutter.
+Associates project sessions with authenticated owners, preventing IDOR and unauthorized data exposure.
 """
 
 import hashlib
-import json
 import time
 import uuid
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Tuple
 
 # In-memory storage of research project sessions (persisted across session lifetime)
 RESEARCH_PROJECTS: Dict[str, Dict[str, Any]] = {}
@@ -35,11 +27,24 @@ def _calculate_reproducibility_hash(session_data: Dict[str, Any]) -> str:
     return hashlib.sha256(raw_str.encode("utf-8")).hexdigest()[:16]
 
 
-def save_research_project(data: Dict[str, Any]) -> Dict[str, Any]:
-    """Saves or updates a research project session."""
+def save_research_project(data: Dict[str, Any], user: Optional[Any] = None) -> Dict[str, Any]:
+    """
+    Saves or updates a research project session.
+    Enforces ownership validation so unauthorized users cannot overwrite projects.
+    """
     project_id = data.get("id") or f"PRJ-{uuid.uuid4().hex[:8].upper()}"
     title = data.get("title") or f"{data.get('compound_name', 'Compound')} vs {data.get('target_gene', 'Target')} Investigation"
     
+    owner_id = (user.uid if user else None) or data.get("owner_id") or "usr-system"
+    owner_email = (user.email if user else None) or data.get("owner_email") or "system@drugnet.internal"
+
+    # If updating an existing project, enforce ownership or Admin role
+    if project_id in RESEARCH_PROJECTS:
+        existing = RESEARCH_PROJECTS[project_id]
+        if user and getattr(user, "role", "") != "Administrator":
+            if existing.get("owner_id") and existing.get("owner_id") != user.uid:
+                raise PermissionError("Forbidden: Cannot modify a project owned by another researcher.")
+
     reproducibility_hash = _calculate_reproducibility_hash(data)
 
     project_entry = {
@@ -64,33 +69,88 @@ def save_research_project(data: Dict[str, Any]) -> Dict[str, Any]:
         "created_at": data.get("created_at") or time.strftime("%Y-%m-%d %H:%M:%S"),
         "updated_at": time.strftime("%Y-%m-%d %H:%M:%S"),
         "status": data.get("status", "completed"),
+        "owner_id": owner_id,
+        "owner_email": owner_email,
+        "is_public": data.get("is_public", False),
     }
 
     RESEARCH_PROJECTS[project_id] = project_entry
     return project_entry
 
 
-def list_research_projects() -> List[Dict[str, Any]]:
-    """Returns all saved research project sessions sorted by most recent."""
-    projects = list(RESEARCH_PROJECTS.values())
-    projects.sort(key=lambda p: p.get("updated_at", ""), reverse=True)
-    return projects
+def list_research_projects(user: Optional[Any] = None) -> List[Dict[str, Any]]:
+    """
+    Returns saved research project sessions authorized for the given user.
+    - Administrators can view all projects.
+    - Standard researchers see only their owned projects and public canonical benchmarks.
+    """
+    if not user:
+        return []
+
+    is_admin = getattr(user, "role", "") == "Administrator"
+    user_uid = getattr(user, "uid", None)
+
+    filtered = []
+    for p in RESEARCH_PROJECTS.values():
+        if is_admin or p.get("is_public") is True or p.get("owner_id") == user_uid:
+            filtered.append(p)
+
+    filtered.sort(key=lambda p: p.get("updated_at", ""), reverse=True)
+    return filtered
 
 
-def get_research_project(project_id: str) -> Optional[Dict[str, Any]]:
-    """Retrieves a specific research project session by ID."""
-    return RESEARCH_PROJECTS.get(project_id)
+def get_research_project(project_id: str, user: Optional[Any] = None) -> Tuple[Optional[Dict[str, Any]], Optional[str]]:
+    """
+    Retrieves a specific research project session by ID.
+    Returns (project, None) on success.
+    Returns (None, "NOT_FOUND") if project does not exist.
+    Returns (None, "FORBIDDEN") if unauthorized user attempts to access another user's project (IDOR guard).
+    """
+    if project_id not in RESEARCH_PROJECTS:
+        return None, "NOT_FOUND"
+
+    project = RESEARCH_PROJECTS[project_id]
+    
+    # Public canonical samples are accessible to any authenticated user
+    if project.get("is_public") is True:
+        return project, None
+
+    if not user:
+        return None, "UNAUTHORIZED"
+
+    if getattr(user, "role", "") == "Administrator":
+        return project, None
+
+    if project.get("owner_id") == getattr(user, "uid", None):
+        return project, None
+
+    return None, "FORBIDDEN"
 
 
-def delete_research_project(project_id: str) -> bool:
-    """Deletes a research project session."""
-    if project_id in RESEARCH_PROJECTS:
-        del RESEARCH_PROJECTS[project_id]
-        return True
-    return False
+def delete_research_project(project_id: str, user: Optional[Any] = None) -> Tuple[bool, Optional[str]]:
+    """
+    Deletes a research project session.
+    Requires project ownership or an explicitly authorized Administrative role.
+    """
+    if project_id not in RESEARCH_PROJECTS:
+        return False, "NOT_FOUND"
+
+    project = RESEARCH_PROJECTS[project_id]
+
+    if not user:
+        return False, "UNAUTHORIZED"
+
+    is_admin = getattr(user, "role", "") == "Administrator"
+    is_owner = project.get("owner_id") == getattr(user, "uid", None)
+
+    if not (is_admin or is_owner):
+        return False, "FORBIDDEN"
+
+    del RESEARCH_PROJECTS[project_id]
+    return True, None
 
 
-# Seed canonical sample projects
+# Seed canonical public sample projects
 _sample1 = {
     "id": "PRJ-ABL-IMATINIB",
     "title": "BCR-ABL1 Kinase Inhibition by Imatinib",
@@ -106,6 +166,8 @@ _sample1 = {
     "exhaustiveness": 8,
     "results": {"best_affinity_kcal_mol": -11.4, "kd_nm": 4.6},
     "created_at": "2026-10-25 09:30:00",
+    "is_public": True,
+    "owner_id": "usr-system",
 }
 save_research_project(_sample1)
 
@@ -124,5 +186,7 @@ _sample2 = {
     "exhaustiveness": 8,
     "results": {"best_affinity_kcal_mol": -9.8, "kd_nm": 65.2},
     "created_at": "2026-10-26 14:15:00",
+    "is_public": True,
+    "owner_id": "usr-system",
 }
 save_research_project(_sample2)
